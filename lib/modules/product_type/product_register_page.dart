@@ -8,57 +8,36 @@ import '../../shared/widgets/button/button_widget.dart';
 import '../../shared/widgets/text_form/text_form_widget.dart';
 
 class ProductRegister extends StatefulWidget {
-  var dataProduct = <ProductModel>[];
-
-  ProductRegister() {
-    dataProduct = [];
-  }
+  const ProductRegister({Key? key}) : super(key: key);
   @override
   State<ProductRegister> createState() => _ProductRegisterState();
 }
 
 class _ProductRegisterState extends State<ProductRegister> {
-  var controller = ProductModel();
+  var dataProduct = <ProductModel>[];
 
-  var inputProductController = TextEditingController();
+  var nameProductController = TextEditingController();
+  var stockProductController = TextEditingController();
+  var validityProductController = TextEditingController();
 
   void add() {
-    if (inputProductController.text.isEmpty) return;
     setState(() {
-      widget.dataProduct.add(
+      dataProduct.add(
         ProductModel(
-          idProduct: inputProductController.hashCode,
-          nameProduct: inputProductController.text,
-          stockProduct: inputProductController.text,
-          productValidity: inputProductController.text,
+          nameProduct: nameProductController.text,
+          stockProduct: stockProductController.text,
+          productValidity: validityProductController.text,
         ),
       );
-      inputProductController.clear();
       saveProduct();
     });
   }
 
-  Future load() async {
-    var prefs = await SharedPreferences.getInstance();
-    var data = prefs.getString('data');
-
-    if (data != null) {
-      Iterable decoded = jsonDecode(data);
-      List<ProductModel> result =
-          decoded.map((x) => ProductModel.fromJson(x)).toList();
-      setState(() {
-        widget.dataProduct = result;
-      });
-    }
-  }
-
   saveProduct() async {
     var prefs = await SharedPreferences.getInstance();
-    await prefs.setString('data', jsonEncode(widget.dataProduct));
-  }
+    await prefs.setString('data', jsonEncode(dataProduct));
 
-  _ProductRegisterState() {
-    load();
+    Navigator.pop(context);
   }
 
   @override
@@ -77,37 +56,24 @@ class _ProductRegisterState extends State<ProductRegister> {
           TextFormWidget(
             title: "Nome",
             hintText: "Nome",
-            onChanged: (value) {
-              setState(() {
-                controller.nameProduct = value;
-                saveProduct();
-              });
-            },
+            controller: nameProductController,
           ),
           TextFormWidget(
             title: "Quantidade",
             hintText: "Quantidade",
-            onChanged: (value) {
-              setState(() {
-                controller.stockProduct = value;
-                saveProduct();
-              });
-            },
+            controller: stockProductController,
           ),
           TextFormWidget(
             title: "Validade",
             hintText: "Validade",
-            onChanged: (value) {
-              setState(() {
-                controller.productValidity = value;
-                saveProduct();
-              });
-            },
+            controller: validityProductController,
           ),
         ],
       ),
       bottomNavigationBar: ButtonWidget(
-        onPressed: add,
+        onPressed: () {
+          add();
+        },
       ),
     );
   }

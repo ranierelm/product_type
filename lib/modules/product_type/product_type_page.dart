@@ -1,22 +1,41 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:product_type/shared/widgets/search/search_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../shared/models/product_model.dart';
 
 class ProductType extends StatefulWidget {
-  var data = ProductModel();
-  var dataProduct = <ProductModel>[];
-  ProductType() {
-    dataProduct = [];
-  }
+  const ProductType({Key? key}) : super(key: key);
 
   @override
   State<ProductType> createState() => _ProductTypeState();
 }
 
 class _ProductTypeState extends State<ProductType> {
+  var dataProduct = <ProductModel>[];
   var inputProductController = TextEditingController();
-  var controller = ProductModel();
+
+  Future load() async {
+    var prefs = await SharedPreferences.getInstance();
+    var data = prefs.getString('data');
+
+    if (data != null) {
+      Iterable decoded = jsonDecode(data);
+      List<ProductModel> result =
+          decoded.map((x) => ProductModel.fromJson(x)).toList();
+      setState(() {
+        dataProduct = result;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    load();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +54,8 @@ class _ProductTypeState extends State<ProductType> {
           const SearchWidget(),
           Expanded(
             child: ListView.builder(
-              itemCount: widget.dataProduct.length,
+              itemCount: dataProduct.length,
               itemBuilder: (context, index) {
-                final productList = widget.dataProduct[index];
-
                 return Padding(
                   padding:
                       const EdgeInsets.only(bottom: 10, left: 10, right: 10),
@@ -59,7 +76,7 @@ class _ProductTypeState extends State<ProductType> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.all(10),
-                                    child: Text("N: ${widget.data.idProduct}",
+                                    child: Text("N: 1",
                                         style: const TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.w700,
@@ -85,19 +102,21 @@ class _ProductTypeState extends State<ProductType> {
                                         fontSize: 16,
                                       ),
                                     ),
-                                    Text("${widget.data.idProduct}",
+                                    Text(dataProduct[index].nameProduct,
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 16,
                                           height: 1.7,
                                         )),
-                                    Text("Estoque: ${widget.data.idProduct}",
+                                    Text(
+                                        "Estoque: ${dataProduct[index].stockProduct}",
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 16,
                                           height: 1.7,
                                         )),
-                                    Text("Validade: ${widget.data.idProduct}",
+                                    Text(
+                                        "Validade: ${dataProduct[index].productValidity}",
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 16,
@@ -117,8 +136,9 @@ class _ProductTypeState extends State<ProductType> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, "/product_register");
+        onPressed: () async {
+          await Navigator.pushNamed(context, "/product_register");
+          load();
         },
         child: const Icon(Icons.add),
       ),

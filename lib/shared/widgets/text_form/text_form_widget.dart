@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class TextFormWidget extends StatefulWidget {
   final String hintText;
   final String title;
-  final void Function(String value) onChanged;
+  final TextEditingController controller;
 
   const TextFormWidget({
     Key? key,
     required this.hintText,
     required this.title,
-    required this.onChanged,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -17,7 +17,6 @@ class TextFormWidget extends StatefulWidget {
 }
 
 class _TextFormWidgetState extends State<TextFormWidget> {
-  var inputProductController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -32,8 +31,7 @@ class _TextFormWidgetState extends State<TextFormWidget> {
             ),
           ),
           TextFormField(
-            controller: inputProductController,
-            onChanged: widget.onChanged,
+            controller: widget.controller,
             decoration: InputDecoration(
                 hintText: widget.hintText,
                 border: OutlineInputBorder(
