@@ -18,8 +18,8 @@ class _ProductTypeState extends State<ProductType> {
   var inputProductController = TextEditingController();
 
   Future load() async {
-    var prefs = await SharedPreferences.getInstance();
-    var data = prefs.getString('data');
+    var instance = await SharedPreferences.getInstance();
+    var data = instance.getString('data');
 
     if (data != null) {
       Iterable decoded = jsonDecode(data);
